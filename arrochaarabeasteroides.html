@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Arrocha Árabe: Asteroides</title> <!-- O título da pedrada... -->
+    </head>
+    <body>
+        <canvas id="canvasdojogo" width="800" height="600" style="border:1px solid white;"> <!-- Inicializando o canvas que permitirá a criação da janela onde o jogo estará contido -->
+        </canvas>
+        <script>
+            const FPS = 30; //Criando uma constante para o número de quadros por segundo
+            const TAMANHO_DA_NAVE = 30; //Definindo o diâmetro ocupado pela nave(pixels, que são quadrados, por cima do outro criam uma espécie de círculo),
+            const ANGULO_INICIAL = 90 * Math.PI / 180; //sendo 30 o dobro do raio(15) ocupado pelo círculo que contem a nave
+            const gerar_nave = (canvas,angulo_inicial, tamanho_da_nave) => ({ //Função pura para criar o posicionamento da nave na janela
+                x: canvas.width / 2, //definindo a posição inicial na coordenada x ao dividir a largura da tela por dois
+                y: canvas.height / 2, //definindo a posição inicial na coordenada y ao dividir a altura da tela por dois
+                r: tamanho_da_nave / 2, //definindo o raio do círculo que contém a nave
+                a: angulo_inicial //o ângulo inicial da nave em relação ao eixo x, isto é, 90 graus
+            });
+            const espaço_do_fundo = (contexto, largura, altura) => { //Função pura para criar o espaço de fundo onde estará a nave, sendo ela utilizada sempre para repintar a janela do jogo de preto antes de "pintar" os objetos(nave, tiros, asteroides) ao atualizar o frame, a fim de evitar ter tracejados na tela
+                contexto.fillStyle = "black"; //comando do canvas API utilizado para preencher(fill) o fundo de preto("black" CSS)
+                contexto.fillRect(0,0,largura, altura); //comando do canvas API para preencher o retângulo com a cor definida anteriormente(preta)
+                //(0,0) é a posição do canto esquerdo da tela 
+            };
+
+            const imagem_da_nave = (contexto, nave, tamanho_da_nave) => { //Função pura para pintar a imagem da nave por cima da tela preta pintada anteriormente. Utiliza o "contexto" 2D do canvas para desenhar
+                contexto.strokeStyle = "white"; //Definindo a propriedade do contorno da nave como branca
+                contexto.lineWidth = tamanho_da_nave / 20 //Definindo a espessura da linha como a vigésima parte do tamanho_da_nave
+                contexto.beginPath(); //Inicia um novo caminho de desenho, preparando para começar um novo caminho
+        </script>
+    </body>
+</html>
