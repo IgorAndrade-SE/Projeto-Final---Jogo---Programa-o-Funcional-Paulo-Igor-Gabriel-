@@ -83,7 +83,29 @@
 
          //Criando a constante na qual o jogo irá ser focado, que realmente fará o jogo acontecer
     const update = () => {
+        //Desenhando o fundo do jogo
+         contexto.fillStyle = "black";
+         contexto.fillRect(0, 0, canv.width, canv.height);
 
+         //Desenhando a nave(Em formato triângular)
+         contexto.strokeStyle = "red";
+         contexto.lineWidth = TAMANHO_DA_NAVE / 20,
+         contexto.beginPath();
+         contexto.moveTo(
+            novaNave.x + 4/3 * novaNave.raio * Math.cos(novaNave.ângulo),
+            novaNave.y - 4/3 * novaNave.raio * Math.sin(novaNave.ângulo)
+
+         )
+         contexto.lineTo(
+            novaNave.x - novaNave.raio * (2/3 *Math.cos(novaNave.ângulo) + Math.sin(novaNave.ângulo)), //Traseira Esquerda da Nave
+            novaNave.y + novaNave.raio * (2/3 *Math.sin(novaNave.ângulo) - Math.cos(novaNave.ângulo))
+        )
+         contexto.lineTo(
+            novaNave.x - novaNave.raio * (2/3 *Math.cos(novaNave.ângulo) - Math.sin(novaNave.ângulo)), //Traseira Direita da Nave
+            novaNave.y + novaNave.raio * (2/3 *Math.sin(novaNave.ângulo) + Math.cos(novaNave.ângulo))
+        )    
+         contexto.closePath();
+         contexto.stroke();
 
     }
   
