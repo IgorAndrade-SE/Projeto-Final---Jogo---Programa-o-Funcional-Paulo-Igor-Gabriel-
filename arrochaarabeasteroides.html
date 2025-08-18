@@ -45,6 +45,42 @@
   ...nave,
   impulso: {...nave.impulso}
    }
+
+   //Aqui, realizamos os comandos e o código para os eventos do clique de teclas no teclado, para fazer a nave se movimentat pelo mapa
+    const keyDown = (/** @type {KeyboardEvent} */ evento) => {  // o keycode armazena um número que representa a tecla que foi pressionada
+     switch(evento.keyCode){
+          case 37: //37 representa a seta para a esquerda(objetivo: rotacionar para a esquerda)
+            novaNave.rotação = VELOCIDADE_DE_ROTAÇÃO / 180 * Math.PI / FPS 
+            break;
+          case 38: //representa a tecla para cima(objetivo: mover a nave para frente) 
+           novaNave.impulsionando = true
+            break;  
+          case 39: //representa a seta para a esquerda(objetivo: rotacionar para a direita)
+            novaNave.rotação = -VELOCIDADE_DE_ROTAÇÃO / 180 * Math.PI / FPS
+            break; 
+
+            }  
+        }
+    const keyUp = (/** @type {KeyboardEvent} */evento) => {  // o keycode armazena um número que representa a tecla que foi pressionada
+        switch(evento.keyCode) /**uma série de perguntas do tipo if/else*/{
+          case 37: //37 representa a seta para a esquerda(objetivo: parar de rotacionar)
+            novaNave.rotação = 0; 
+            break;
+          case 38: //representa a tecla para cima(objetivo: mover a nave para frente) 
+            novaNave.impulsionando = false
+            break;  
+          case 39: //representa a seta para a esquerda(objetivo: parar de rotacionar)
+            novaNave.rotação = 0;
+            break; 
+                
+               
+            }  
+        }
+        
+        
+     document.addEventListener("keydown", keyDown); //keydow vai identificar que alguma teclado de teclado está sendo pressionada
+     document.addEventListener("keyup", keyUp);
+
     </script>
 </body>
 
