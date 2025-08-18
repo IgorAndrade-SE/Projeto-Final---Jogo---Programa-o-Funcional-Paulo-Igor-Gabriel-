@@ -81,6 +81,16 @@
      document.addEventListener("keydown", keyDown); //keydow vai identificar que alguma teclado de teclado está sendo pressionada
      document.addEventListener("keyup", keyUp);
 
+         //Criando a constante na qual o jogo irá ser focado, que realmente fará o jogo acontecer
+    const update = () => {
+
+
+    }
+  
+
+    //Irá executar a função update em um intervalo de 1000/FPS  milissegundos, fazendo com que o jogo ocorra
+    setInterval(update, 1000 / FPS);
+
     </script>
 </body>
 
