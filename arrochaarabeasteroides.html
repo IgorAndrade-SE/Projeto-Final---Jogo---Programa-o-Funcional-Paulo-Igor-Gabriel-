@@ -107,6 +107,50 @@
          contexto.closePath();
          contexto.stroke();
 
+        //Impulsionando a nave
+
+        //Aqui, criamos as funções de soma e subtração para podermos trabalhar com a rotação e movimentação da nave de maneira funcional, por meio de listas
+        const soma = (lista) => lista[0] + lista[1]
+        const subtração = (lista) => lista [0] - lista[1]
+        lista_para_o_impulso_x = [novaNave.impulso.x, IMPULSO_DA_NAVE * Math.cos(novaNave.a) / FPS] 
+        lista_para_o_impulso_y = [novaNave.impulso.y, IMPULSO_DA_NAVE * Math.sin(novaNave.a) / FPS]
+        lista_para_a_fricção_x = [novaNave.impulso.x, FRICÇÃO * novaNave.impulso.x / FPS] 
+        lista_para_a_fricção_y = [novaNave.impulso.y, FRICÇÃO * novaNave.impulso.y / FPS]
+        
+        //Impulso da nave 
+        if (novaNave.impulsionando) {
+                novaNave.impulso.x = soma(lista_para_o_impulso_x) ;
+                novaNave.impulso.y = subtração(lista_para_o_impulso_y);
+                
+                contexto.fillStyle = "yellow";
+                contexto.strokeStyle = "red"; //pode ser interpretado como "escolher a cor da caneta que será utulizada para desenhar a nave"
+                contexto.lineWidth = TAMANHO_DA_NAVE / 10, //define a espessura das linhas
+                contexto.beginPath();  // seria basicamente "começar um novo desenho", você tira a ponta da caneta do papel e coloca em um lugar novo para começar uma nova forma
+                contexto.moveTo( //foguete esquerdo
+                    novaNave.x - novaNave.raio * (2/3 *Math.cos(novaNave.a) + 0.5* Math.sin(novaNave.a)), 
+                    novaNave.y + novaNave.raio * (2/3 *Math.sin(novaNave.a) - 0.5*Math.cos(novaNave.a))
+               ); // levantar a ponta do lápis e levar ela a um novo local
+                contexto.lineTo( // foguete central atrás da nave
+                    novaNave.x - novaNave.raio * (6/3 *Math.cos(novaNave.a) ), //Traseira Esquerda da Nave
+                    novaNave.y + novaNave.raio * (6/3 *Math.sin(novaNave.a) )
+               )
+                contexto.lineTo( //foguete direito
+                    novaNave.x - novaNave.raio * (2/3 *Math.cos(novaNave.a) - 0.5*Math.sin(novaNave.a)), //Traseira Direita da Nave
+                    novaNave.y + novaNave.raio * (2/3 *Math.sin(novaNave.a) + 0.5* Math.cos(novaNave.a))
+               );
+                
+
+
+                contexto.closePath();
+                contexto.fill();
+                contexto.stroke(); 
+
+         } else {
+                novaNave.impulso.x = subtração(lista_para_a_fricção_x)
+                novaNave.impulso.y = subtração(lista_para_a_fricção_y)
+          }
+
+
         //Centro do Triângulo(será usado um ponto para marcar o centro)
         contexto.fillStyle = "red"
         contexto.fillRect(novaNave.x - 1, novaNave.y - 1, 2,2) 
