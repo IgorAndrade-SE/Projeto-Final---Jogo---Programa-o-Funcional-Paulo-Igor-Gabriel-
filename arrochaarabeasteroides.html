@@ -10,8 +10,6 @@
 </head>
 
 <body>
-    
-   
     <canvas id="Canvasdojogo" width="800" height="600"></canvas>
     <script>
      //Aqui definimos as funções que serão utilizadas ao longo do código   
@@ -112,8 +110,8 @@
         //Aqui, criamos as funções de soma e subtração para podermos trabalhar com a rotação e movimentação da nave de maneira funcional, por meio de listas
         const soma = (lista) => lista[0] + lista[1]
         const subtração = (lista) => lista [0] - lista[1]
-        lista_para_o_impulso_x = [novaNave.impulso.x, IMPULSO_DA_NAVE * Math.cos(novaNave.a) / FPS] 
-        lista_para_o_impulso_y = [novaNave.impulso.y, IMPULSO_DA_NAVE * Math.sin(novaNave.a) / FPS]
+        lista_para_o_impulso_x = [novaNave.impulso.x, IMPULSO_DA_NAVE * Math.cos(novaNave.ângulo) / FPS] 
+        lista_para_o_impulso_y = [novaNave.impulso.y, IMPULSO_DA_NAVE * Math.sin(novaNave.ângulo) / FPS]
         lista_para_a_fricção_x = [novaNave.impulso.x, FRICÇÃO * novaNave.impulso.x / FPS] 
         lista_para_a_fricção_y = [novaNave.impulso.y, FRICÇÃO * novaNave.impulso.y / FPS]
         
@@ -127,16 +125,16 @@
                 contexto.lineWidth = TAMANHO_DA_NAVE / 10, //define a espessura das linhas
                 contexto.beginPath();  // seria basicamente "começar um novo desenho", você tira a ponta da caneta do papel e coloca em um lugar novo para começar uma nova forma
                 contexto.moveTo( //foguete esquerdo
-                    novaNave.x - novaNave.raio * (2/3 *Math.cos(novaNave.a) + 0.5* Math.sin(novaNave.a)), 
-                    novaNave.y + novaNave.raio * (2/3 *Math.sin(novaNave.a) - 0.5*Math.cos(novaNave.a))
+                    novaNave.x - novaNave.raio * (2/3 *Math.cos(novaNave.ângulo) + 0.5* Math.sin(novaNave.ângulo)), 
+                    novaNave.y + novaNave.raio * (2/3 *Math.sin(novaNave.ângulo) - 0.5*Math.cos(novaNave.ângulo))
                ); // levantar a ponta do lápis e levar ela a um novo local
                 contexto.lineTo( // foguete central atrás da nave
-                    novaNave.x - novaNave.raio * (6/3 *Math.cos(novaNave.a) ), //Traseira Esquerda da Nave
-                    novaNave.y + novaNave.raio * (6/3 *Math.sin(novaNave.a) )
+                    novaNave.x - novaNave.raio * (6/3 *Math.cos(novaNave.ângulo) ), //Traseira Esquerda da Nave
+                    novaNave.y + novaNave.raio * (6/3 *Math.sin(novaNave.ângulo) )
                )
                 contexto.lineTo( //foguete direito
-                    novaNave.x - novaNave.raio * (2/3 *Math.cos(novaNave.a) - 0.5*Math.sin(novaNave.a)), //Traseira Direita da Nave
-                    novaNave.y + novaNave.raio * (2/3 *Math.sin(novaNave.a) + 0.5* Math.cos(novaNave.a))
+                    novaNave.x - novaNave.raio * (2/3 *Math.cos(novaNave.ângulo) - 0.5*Math.sin(novaNave.ângulo)), //Traseira Direita da Nave
+                    novaNave.y + novaNave.raio * (2/3 *Math.sin(novaNave.ângulo) + 0.5* Math.cos(novaNave.ângulo))
                );
                 
 
@@ -158,10 +156,10 @@
         
         //Rotacionando a nave
         
-        lista_ângulo_e_rotação = [novaNave.a,novaNave.rotação]
+        lista_ângulo_e_rotação = [novaNave.ângulo,novaNave.rotação]
         
 
-        novaNave.a = soma(lista_ângulo_e_rotação)
+        novaNave.ângulo = soma(lista_ângulo_e_rotação)
 
 
         //Movendo a nave
@@ -170,6 +168,18 @@
 
         novaNave.x = soma(lista_x_e_impulso)
         novaNave.y = soma(lista_y_e_impulso)
+
+           //Limitando tela, impedindo a nave de sumir, fazendo ela reaparecer nos outros lados
+          if (novaNave.x < 0 - novaNave.raio) {
+              novaNave.x = canv.width + novaNave.raio;
+          } else if (novaNave.x > canv.width + novaNave.raio) {
+              novaNave.x = 0 - novaNave.raio 
+         }
+         if (novaNave.y < 0 - novaNave.raio) {
+              novaNave.y = canv.height + novaNave.raio
+          } else if (novaNave.y > canv.height + novaNave.raio) {
+            novaNave.y = 0 - novaNave.raio 
+          }
 
 
     }
