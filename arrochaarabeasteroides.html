@@ -155,6 +155,23 @@
         contexto.fillStyle = "red"
         contexto.fillRect(novaNave.x - 1, novaNave.y - 1, 2,2) 
 
+        
+        //Rotacionando a nave
+        
+        lista_ângulo_e_rotação = [novaNave.a,novaNave.rotação]
+        
+
+        novaNave.a = soma(lista_ângulo_e_rotação)
+
+
+        //Movendo a nave
+        lista_x_e_impulso= [novaNave.x,novaNave.impulso.x]
+        lista_y_e_impulso = [novaNave.y,novaNave.impulso.y]
+
+        novaNave.x = soma(lista_x_e_impulso)
+        novaNave.y = soma(lista_y_e_impulso)
+
+
     }
   
 
