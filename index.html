@@ -18,7 +18,9 @@
      const IMPULSO_DA_NAVE  = 5
      const VELOCIDADE_DE_ROTAÇÃO = 180
      const FRICÇÃO = 0.7
-
+     const VELOCIDADE_DOS_ASTEROIDES = 50
+     const TAMANHO_DOS_ASTEROIDES = 100
+     const VÉRTICE_DO_ASTEROIDE = 10
      const canv = document.getElementById("Canvasdojogo");
      const contexto = canv.getContext("2d")
 
@@ -37,6 +39,7 @@
            })  
 
         })
+     
     
 //Aqui, criamos uma cópia do registro, para podermos alterar valores e, ainda assim, garantir a imutabilidade do registro original
    const novaNave = {
@@ -78,17 +81,93 @@
         
      document.addEventListener("keydown", keyDown); //keydow vai identificar que alguma teclado de teclado está sendo pressionada
      document.addEventListener("keyup", keyUp);
+     //Asteroides
 
+     const asteroideXD = (x,y) => Object.freeze({
+        x: x,
+        y: y,
+        xv: Math.random() * VELOCIDADE_DOS_ASTEROIDES / FPS * (Math.random() < 0.5? 1 : -1),
+        yv: Math.random() * VELOCIDADE_DOS_ASTEROIDES / FPS * (Math.random() < 0.5? 1 : -1),
+        raio: TAMANHO_DOS_ASTEROIDES / 2,
+        ângulo: Math.random() * Math.PI * 2,
+        vértices: Math.floor(Math.random() * (VÉRTICE_DO_ASTEROIDE + 1) + VÉRTICE_DO_ASTEROIDE / 2),
+        curvaturas: []
+        })
+
+        const novo_asteroide2 = {...asteroideXD} 
+
+     //const novo_asteroideXD = (a,b) => Object.freeze({
+        //x:a,
+        //y:b,
+        //xv: Math.random() * VELOCIDADE_DOS_ASTEROIDES / FPS * (Math.random() < 0.5? 1 : -1),
+        //yv: Math.random() * VELOCIDADE_DOS_ASTEROIDES / FPS * (Math.random() < 0.5? 1 : -1),
+        //raio: TAMANHO_DOS_ASTEROIDES / 2,
+        //ângulo: Math.random() * Math.PI * 2,
+        //vértices: Math.floor(Math.random() * (VÉRTICE_DO_ASTEROIDE + 1) + VÉRTICE_DO_ASTEROIDE / 2),
+        //curvaturas: []
+        //})
+
+
+    const gerarPosicaoAleatoria = (canvas) => ({
+            //meio que canvas seria minemonico como argumento arbitrario nesse caso
+            //porque se refere ao canvas usado lá em cima
+            x: Math.floor(Math.random() * canvas.width), //gera um x do maximo ao minimo da tela, multiplicando o valor da tela por algo netre 0 e 1
+            y: Math.floor(Math.random() * canvas.height) //mesma coisa só que pra y
+        })
+
+
+        //como é uma posição aleatória seria complicado se surgisse direto na nave
+        //então é bom definir uma distância segura calculando a distância entre os dois pontos
+        const verificar_posicao_segura = (nave) => (pedra) => {
+            if ((Math.sqrt((pedra.x-nave.x)**2 + (pedra.y-nave.y)**2) >= 225)) //225 ou mais é a distancia segura
+            {return true}
+            else {return false}
+             //se cumprir os pre requisitos retorna true, se não false 
+        }
+
+
+        //função que gera uma posição válida usando recursão
+        //canvas é minemonico pelo argumento anterior
+
+         const gerarPosicaoValida = (nave, canvas) => {
+            const posicao = gerarPosicaoAleatoria(canvas) //posicao é registro com coordenadas x e y, ele gera uma posiçãp
+            if ((verificar_posicao_segura(nave)(posicao))===true) { //testa se a posição é válida
+                return posicao //se a posição na constante for segura ele retorna True e gera a posicao, assim se for válido a função acaba
+            } else {
+            return gerarPosicaoValida(nave, canvas) //se nao repete a funcao em busca de uma posicao valida até achar uma posição valida
+            //tava dando erro sem if else e return então essas coisas foram colocadas
+        }
+    }
+
+        //função para criar asteroides baseada na posição válida
+        const criarAsteroide = (nave, canvas) => {
+            const posicaoValida = gerarPosicaoValida(nave, canvas)
+            return asteroideXD(posicaoValida.x,posicaoValida.y)
+        }
+
+
+
+        //função que cria a lista de asteroides de forma recursiva
+         const criarListaAsteroides = (nave, canvas, quantidade) => {
+            if (quantidade <= 0) {
+                return []
+            }
+            else {return [
+                criarAsteroide(nave, canvas),
+                ...criarListaAsteroides(nave, canvas, quantidade - 1)
+            ]}
+        }
+    gerarPosicaoAleatoria(canv)
          //Criando a constante na qual o jogo irá ser focado, que realmente fará o jogo acontecer
     const update = () => {
         //Desenhando o fundo do jogo
          contexto.fillStyle = "black";
-         contexto.fillRect(0, 0, canv.width, canv.height);
+         contexto.fillRect(0, 0, canv.width, canv.height)
 
          //Desenhando a nave(Em formato triângular)
          contexto.strokeStyle = "red";
          contexto.lineWidth = TAMANHO_DA_NAVE / 20,
-         contexto.beginPath();
+         contexto.beginPath()
          contexto.moveTo(
             novaNave.x + 4/3 * novaNave.raio * Math.cos(novaNave.ângulo),
             novaNave.y - 4/3 * novaNave.raio * Math.sin(novaNave.ângulo)
@@ -102,8 +181,8 @@
             novaNave.x - novaNave.raio * (2/3 *Math.cos(novaNave.ângulo) - Math.sin(novaNave.ângulo)), //Traseira Direita da Nave
             novaNave.y + novaNave.raio * (2/3 *Math.sin(novaNave.ângulo) + Math.cos(novaNave.ângulo))
         )    
-         contexto.closePath();
-         contexto.stroke();
+         contexto.closePath()
+         contexto.stroke()
 
         //Impulsionando a nave
 
@@ -139,9 +218,9 @@
                 
 
 
-                contexto.closePath();
-                contexto.fill();
-                contexto.stroke(); 
+                contexto.closePath()
+                contexto.fill()
+                contexto.stroke()
 
          } else {
                 novaNave.impulso.x = subtração(lista_para_a_fricção_x)
@@ -180,13 +259,44 @@
           } else if (novaNave.y > canv.height + novaNave.raio) {
             novaNave.y = 0 - novaNave.raio 
           }
+        //Desenhando os asteroides
+        
+        const Desenho_dos_asteroides = (lista) => {  //6=quantidade
+           contexto.strokeStyle = "white"
+            contexto.lineWidth = TAMANHO_DA_NAVE / 15
+            contexto.beginPath()
+            contexto.moveTo(
+                lista.x + lista.raio * lista.curvaturas * Math.cos(lista.ângulo),
+                lista.y + lista.raio * lista.curvaturas * Math.sin(lista.ângulo),
+            )
+            contexto.lineTo(
+                lista.x - lista.raio * (2/3 *Math.cos(lista.ângulo) + Math.sin(lista.ângulo)), //Traseira Esquerda da Nave
+                lista.y + lista.raio * (2/3 *Math.sin(lista.ângulo) - Math.cos(lista.ângulo))
+            )
+            contexto.lineTo(
+                lista.x - lista.raio * (2/3 *Math.cos(lista.ângulo) - Math.sin(lista.ângulo)), //Traseira Direita da Nave
+                  lista.y + lista.raio * (2/3 *Math.sin(lista.ângulo) + Math.cos(lista.ângulo))
+            )      
+            contexto.closePath()
+            contexto.stroke()
+        }
+    
+       
+        const lista_de_asteroide = criarListaAsteroides(novaNave, canv, 6)
+        lista_de_asteroide.forEach(novo_asteroide2 => {
+            Desenho_dos_asteroides(novo_asteroide2)
+        }) 
 
+        
 
-    }
-  
+        
+       
+    }    
 
     //Irá executar a função update em um intervalo de 1000/FPS  milissegundos, fazendo com que o jogo ocorra
     setInterval(update, 1000 / FPS);
+
+    
 
     </script>
 </body>
