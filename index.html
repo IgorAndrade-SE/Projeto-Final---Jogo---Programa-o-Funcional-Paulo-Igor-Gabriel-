@@ -18,9 +18,13 @@
      const IMPULSO_DA_NAVE  = 5
      const VELOCIDADE_DE_ROTAÇÃO = 180
      const FRICÇÃO = 0.7
-     const VELOCIDADE_DOS_ASTEROIDES = 120
+     const VELOCIDADE_DOS_ASTEROIDES = 50
      const TAMANHO_DOS_ASTEROIDES = 100
      const VÉRTICE_DO_ASTEROIDE = 10
+     const TEMPO_DE_BLINK = 0.1 
+     const TEMPO_DE_EXPLOSÃO_DA_NAVE = 0.9
+     const TEMPO_DE_INVULNERABILIDADE = 3 
+     const MOSTRAR_COLISÃO = false
      const canv = document.getElementById("Canvasdojogo");
      const contexto = canv.getContext("2d")
 
@@ -29,14 +33,15 @@
         {
           x: canv.width / 2, 
           y: canv.height / 2, //essas duas estão sendo utilizadas para fazer a nave começar do meio da tela, por meio de informações das coordenadas x e y
-          raio: TAMANHO_DA_NAVE / 2,
-          ângulo: 90 / 180 * Math.PI, // converte para radianos 
-          rotação: 0,
-          impulsionando: false,
+          raio: TAMANHO_DA_NAVE / 2, //definindo o raio ocupado pela nave
+          ângulo: 90 / 180 * Math.PI, //ângulo inicial da nave, ou seja, para onde aponta a nave
+          tempo_de_explosão:0, 
+          rotação: 0, //a posição inicial da nave em relação ao seu próprio eixo
+          impulsionando: false, //o foguete começa parado, portanto os motores estão desligados e sem impulso
           impulso: Object.freeze({
                 x: 0,
                 y: 0
-           })  
+           })  //sistema de impulso do foguete que será utilizado mais tarde
 
         })
      
@@ -46,15 +51,19 @@
   ...nave,
   impulso: {...nave.impulso}
    }
+   //uma função para caso a nave se choque contra um asteroide
+   function Explodir_a_nave() {
+            novaNave.tempo_de_explosão = Math.ceil(TEMPO_DE_EXPLOSÃO_DA_NAVE * FPS);//Math.cell seria o oposto de math.floor, ele irá arrendondar para o maior inteiro
+            }
 
-   //Aqui, realizamos os comandos e o código para os eventos do clique de teclas no teclado, para fazer a nave se movimentat pelo mapa
+   //Aqui, realizamos os comandos e o código para os eventos do clique de teclas no teclado, para fazer a nave se movimentar pelo mapa
     const keyDown = (/** @type {KeyboardEvent} */ evento) => {  // o keycode armazena um número que representa a tecla que foi pressionada
      switch(evento.keyCode){
           case 37: //37 representa a seta para a esquerda(objetivo: rotacionar para a esquerda)
             novaNave.rotação = VELOCIDADE_DE_ROTAÇÃO / 180 * Math.PI / FPS 
             break;
           case 38: //representa a tecla para cima(objetivo: mover a nave para frente) 
-           novaNave.impulsionando = true
+           novaNave.impulsionando = true 
             break;  
           case 39: //representa a seta para a esquerda(objetivo: rotacionar para a direita)
             novaNave.rotação = -VELOCIDADE_DE_ROTAÇÃO / 180 * Math.PI / FPS
@@ -82,22 +91,31 @@
      document.addEventListener("keydown", keyDown); //keydow vai identificar que alguma teclado de teclado está sendo pressionada
      document.addEventListener("keyup", keyUp);
      //Asteroides
-
+     //crriando uma função que retorna um registro que contém as propriedades dos asteroides
      const asteroideXD = (x,y) => Object.freeze({
         x: x,
         y: y,
-        xv: Math.random() * VELOCIDADE_DOS_ASTEROIDES / FPS * (Math.random() < 0.5? 1 : -1),
-        yv: Math.random() * VELOCIDADE_DOS_ASTEROIDES / FPS * (Math.random() < 0.5? 1 : -1),
-        raio: TAMANHO_DOS_ASTEROIDES / 2,
-        ângulo: Math.random() * Math.PI * 2,
-        vértices: Math.floor(Math.random() * (VÉRTICE_DO_ASTEROIDE + 1) + VÉRTICE_DO_ASTEROIDE / 2),
-        curvaturas: 0
+        xv: Math.random() * VELOCIDADE_DOS_ASTEROIDES / FPS * (Math.random() < 0.5? 1 : -1), //velocidade do asteroide no eixo x
+        yv: Math.random() * VELOCIDADE_DOS_ASTEROIDES / FPS * (Math.random() < 0.5? 1 : -1), //velocidade do asteroide no eixo y
+        raio: TAMANHO_DOS_ASTEROIDES / 2, //raio do asteroide
+        ângulo: Math.random() * Math.PI * 2, //ângulo para onde o asteroide estará apontado
+        vértices: Math.floor(Math.random() * (VÉRTICE_DO_ASTEROIDE + 1) + VÉRTICE_DO_ASTEROIDE / 2), //para onde os vértices(são triângulos) vão apontar
+        curvaturas: 0 
         })
-
-        //const novo_asteroide2 = {...asteroideXD} 
-
-
-
+    //função utilizada para calcular a distância entre dois pontos quaisquer, será utilizada para verificar se a nave bateu em algum asteroide
+    function distanciaEntrePontos(x1,y1,x2,y2){
+        return Math.sqrt(Math.pow(x2-x1,2) + Math.pow(y2-y1,2))
+    }
+    //Função para desenhar a explosão da nave
+    function Explodir_a_nave_desenho(){
+        contexto.fillStyle = "lime"
+        contexto.strokeStyle = "lime"
+        contexto.beginPath()
+        contexto.arc(novaNave.x, novaNave.y, novaNave.raio,0, Math.PI * 2, false)
+        contexto.fill()
+        contexto.stroke()
+    }
+    //função para gerar uma posição aleatória para o surgimento de um asteroide
     const gerarPosicaoAleatoria = (canvas) => ({
             //meio que canvas seria minemonico como argumento arbitrario nesse caso
             //porque se refere ao canvas usado lá em cima
@@ -120,7 +138,7 @@
         //canvas é minemonico pelo argumento anterior
 
          const gerarPosicaoValida = (nave, canvas) => {
-            const posicao = gerarPosicaoAleatoria(canvas) //posicao é registro com coordenadas x e y, ele gera uma posiçãp
+            const posicao = gerarPosicaoAleatoria(canvas) //posicao é registro com coordenadas x e y, ele gera uma posição
             if ((verificar_posicao_segura(nave)(posicao))===true) { //testa se a posição é válida
                 return posicao //se a posição na constante for segura ele retorna True e gera a posicao, assim se for válido a função acaba
             } else {
@@ -138,6 +156,7 @@
         }
 
         const novo_asteroide2 = {...criarAsteroide(nave,canv)}
+        
 
 
 
@@ -154,9 +173,9 @@
          //Criando a constante na qual o jogo irá ser focado, que realmente fará o jogo acontecer
 
     const lista_de_asteroide = criarListaAsteroides(nave, canv, 10)
-
+            //utilizando o CSS para desenhar os asteroides
             const Desenho_dos_asteroides = (lista) => {  //6=quantidade
-           contexto.strokeStyle = "white"
+            contexto.strokeStyle = "white"
             contexto.lineWidth = TAMANHO_DA_NAVE / 15
             contexto.beginPath()
             contexto.moveTo(
@@ -174,45 +193,47 @@
             contexto.closePath()
             contexto.stroke()
         }
-         //Aqui, criamos as funções de soma e subtração para podermos trabalhar com a rotação e movimentação da nave de maneira funcional, por meio de listas
-         const soma = (lista) => lista[0] + lista[1]
+        //Aqui, criamos as funções de soma e subtração para podermos trabalhar com a rotação e movimentação da nave de maneira funcional, por meio de listas
+        //const soma = (lista) => lista[0] + lista[1]
+        //const subtração = (lista) => lista [0] - lista[1]
+        const soma = (lista) => lista[0] + lista[1]
         const subtração = (lista) => lista [0] - lista[1]
-     
+    //uma função update para atualizar os frames do jogo e tornar possível a atualização de imagem
     const update = () => {
+        //listas que serão utilizadas posteriormente para trabalhar com a movimentação da nave 
+        lista_para_o_impulso_x = [novaNave.impulso.x, IMPULSO_DA_NAVE * Math.cos(novaNave.ângulo) / FPS] 
+        lista_para_o_impulso_y = [novaNave.impulso.y, IMPULSO_DA_NAVE * Math.sin(novaNave.ângulo) / FPS]
+        lista_para_a_fricção_x = [novaNave.impulso.x, FRICÇÃO * novaNave.impulso.x / FPS] 
+        lista_para_a_fricção_y = [novaNave.impulso.y, FRICÇÃO * novaNave.impulso.y / FPS] 
+        //criando uma constante que, quando verdadeira, irá iniciar o processo de desenhar a explosão da nave
+        const explodindo = novaNave.tempo_de_explosão > 0;
         //Desenhando o fundo do jogo
-         contexto.fillStyle = "black";
-         contexto.fillRect(0, 0, canv.width, canv.height)
-
-         //Desenhando a nave(Em formato triângular)
-         contexto.strokeStyle = "red";
-         contexto.lineWidth = TAMANHO_DA_NAVE / 20,
-         contexto.beginPath()
-         contexto.moveTo(
-            novaNave.x + 4/3 * novaNave.raio * Math.cos(novaNave.ângulo),
-            novaNave.y - 4/3 * novaNave.raio * Math.sin(novaNave.ângulo)
-
-         )
-         contexto.lineTo(
-            novaNave.x - novaNave.raio * (2/3 *Math.cos(novaNave.ângulo) + Math.sin(novaNave.ângulo)), //Traseira Esquerda da Nave
-            novaNave.y + novaNave.raio * (2/3 *Math.sin(novaNave.ângulo) - Math.cos(novaNave.ângulo))
-        )
-         contexto.lineTo(
-            novaNave.x - novaNave.raio * (2/3 *Math.cos(novaNave.ângulo) - Math.sin(novaNave.ângulo)), //Traseira Direita da Nave
-            novaNave.y + novaNave.raio * (2/3 *Math.sin(novaNave.ângulo) + Math.cos(novaNave.ângulo))
-        )    
-         contexto.closePath()
-         contexto.stroke()
-
-        //Impulsionando a nave
+        contexto.fillStyle = "black";
+        contexto.fillRect(0, 0, canv.width, canv.height)
 
         
-        lista_para_o_impulso_x = Object.freeze([novaNave.impulso.x, IMPULSO_DA_NAVE * Math.cos(novaNave.ângulo) / FPS]) 
-        lista_para_o_impulso_y = Object.freeze([novaNave.impulso.y, IMPULSO_DA_NAVE * Math.sin(novaNave.ângulo) / FPS])
-        lista_para_a_fricção_x = Object.freeze([novaNave.impulso.x, FRICÇÃO * novaNave.impulso.x / FPS]) 
-        lista_para_a_fricção_y = Object.freeze([novaNave.impulso.y, FRICÇÃO * novaNave.impulso.y / FPS])
-        
-        //Impulso da nave 
-        if (novaNave.impulsionando) {
+         //Desenhando a nave(Em formato triângular), caso não tenha colisão, por isso o !explosion
+        if(!explodindo){
+            contexto.strokeStyle = "red";
+            contexto.lineWidth = TAMANHO_DA_NAVE / 20,
+            contexto.beginPath()
+            contexto.moveTo(
+              novaNave.x + 4/3 * novaNave.raio * Math.cos(novaNave.ângulo),
+              novaNave.y - 4/3 * novaNave.raio * Math.sin(novaNave.ângulo)
+
+            )
+            contexto.lineTo(
+              novaNave.x - novaNave.raio * (2/3 *Math.cos(novaNave.ângulo) + Math.sin(novaNave.ângulo)), //Traseira Esquerda da Nave
+              novaNave.y + novaNave.raio * (2/3 *Math.sin(novaNave.ângulo) - Math.cos(novaNave.ângulo))
+            )
+            contexto.lineTo(
+              novaNave.x - novaNave.raio * (2/3 *Math.cos(novaNave.ângulo) - Math.sin(novaNave.ângulo)), //Traseira Direita da Nave
+              novaNave.y + novaNave.raio * (2/3 *Math.sin(novaNave.ângulo) + Math.cos(novaNave.ângulo))
+            )    
+            contexto.closePath()
+            contexto.stroke()
+            //Impulsionando a nave
+            if (novaNave.impulsionando) {
                 novaNave.impulso.x = soma(lista_para_o_impulso_x) ;
                 novaNave.impulso.y = subtração(lista_para_o_impulso_y);
                 
@@ -232,19 +253,39 @@
                     novaNave.x - novaNave.raio * (2/3 *Math.cos(novaNave.ângulo) - 0.5*Math.sin(novaNave.ângulo)), //Traseira Direita da Nave
                     novaNave.y + novaNave.raio * (2/3 *Math.sin(novaNave.ângulo) + 0.5* Math.cos(novaNave.ângulo))
                );
-                
-
-
                 contexto.closePath()
                 contexto.fill()
                 contexto.stroke()
 
-         } else {
-                novaNave.impulso.x = subtração(lista_para_a_fricção_x)
-                novaNave.impulso.y = subtração(lista_para_a_fricção_y)
-          }
+           }else {
+             novaNave.impulso.x = subtração(lista_para_a_fricção_x)
+             novaNave.impulso.y = subtração(lista_para_a_fricção_y)
+           }
+        
+         }//caso tenha a colisão, desenharemos a explosão
+          else{
+            contexto.fillStyle = "red"
+            contexto.beginPath()
+            contexto.arc(novaNave.x,novaNave.y,novaNave.raio * 1.7, 0, Math.PI * 2,false)
+            contexto.fill()
+            
+            contexto.fillStyle = "orange"
+            contexto.beginPath()
+            contexto.arc(novaNave.x,novaNave.y,novaNave.raio * 1.1, 0, Math.PI * 2,false)
+            contexto.fill()
+            
+            contexto.fillStyle = "yellow"
+            contexto.beginPath()
+            contexto.arc(novaNave.x,novaNave.y,novaNave.raio * 0.8, 0, Math.PI * 2,false)
+            contexto.fill()
+            
+            contexto.fillStyle = "white"
+            contexto.beginPath()
+            contexto.arc(novaNave.x,novaNave.y,novaNave.raio * 0.5, 0, Math.PI * 2,false)
+            contexto.fill()
+          
 
-
+         } 
         //Centro do Triângulo(será usado um ponto para marcar o centro)
         contexto.fillStyle = "red"
         contexto.fillRect(novaNave.x - 1, novaNave.y - 1, 2,2) 
@@ -252,15 +293,15 @@
         
         //Rotacionando a nave
         
-        lista_ângulo_e_rotação = Object.freeze([novaNave.ângulo,novaNave.rotação])
+        lista_ângulo_e_rotação = [novaNave.ângulo,novaNave.rotação]
         
 
         novaNave.ângulo = soma(lista_ângulo_e_rotação)
 
 
         //Movendo a nave
-        lista_x_e_impulso= Object.freeze([novaNave.x,novaNave.impulso.x])
-        lista_y_e_impulso = Object.freeze([novaNave.y,novaNave.impulso.y])
+        lista_x_e_impulso= [novaNave.x,novaNave.impulso.x]
+        lista_y_e_impulso = [novaNave.y,novaNave.impulso.y]
 
         novaNave.x = soma(lista_x_e_impulso)
         novaNave.y = soma(lista_y_e_impulso)
@@ -278,37 +319,56 @@
           }
   
 
+        //Criando a movimentação dos asteroides
+        if(!explodindo){
+            [...lista_de_asteroide].forEach(x => {
+            const lista_para_movimento_do_asteroides_x = [x.x,x.xv]
+            const lista_para_movimento_do_asteroides_y = [x.y,x.yv]
 
-        //Movendo os Asteroides
-        [...lista_de_asteroide].forEach(x => {
-         const lista_para_movimento_do_asteroides_x = [x.x,x.xv]
-         const lista_para_movimento_do_asteroides_y = [x.y,x.yv]
-
-        x.x = soma(lista_para_movimento_do_asteroides_x)
-        x.y = soma(lista_para_movimento_do_asteroides_y)
-        Desenho_dos_asteroides(x)
+            x.x = soma(lista_para_movimento_do_asteroides_x)
+            x.y = soma(lista_para_movimento_do_asteroides_y)
+            Desenho_dos_asteroides(x)
                    //Limitando tela, impedindo a nave de sumir, fazendo ela reaparecer nos outros lados
-          if (x.x < 0 - x.raio) {
-              x.x = canv.width + x.raio;
-          } else if (x.x > canv.width + x.raio) {
-              x.x = 0 - x.raio 
-         }
-         if (x.y < 0 - x.raio) {
-              x.y = canv.height + x.raio
-          } else if (x.y > canv.height + x.raio) {
+             if (x.x < 0 - x.raio) {
+               x.x = canv.width + x.raio;
+            } else if (x.x > canv.width + x.raio) {
+               x.x = 0 - x.raio 
+            }
+             if (x.y < 0 - x.raio) {
+               x.y = canv.height + x.raio
+            } else if (x.y > canv.height + x.raio) {
             x.y = 0 - x.raio 
-          }
+            }
+             if (distanciaEntrePontos(novaNave.x,novaNave.y,x.x,x.y) < novaNave.raio + x.raio){
+               Explodir_a_nave()}
+             if (MOSTRAR_COLISÃO){
+                    contexto.strokeStyle = "lime"
+                    contexto.beginPath()
+                    contexto.arc(novaNave.x,novaNave.y,novaNave.raio, 0, Math.PI * 2,false)
+                    contexto.stroke()
+                }
+            }) 
+        } else{
+            novaNave.x = canv.width / 2
+            novaNave.y = canv.height / 2 //essas duas estão sendo utilizadas para fazer a nave começar do meio da tela, por meio de informações das coordenadas x e y
+            novaNave.raio = TAMANHO_DA_NAVE / 2
+            novaNave.ângulo = 90 / 180 * Math.PI
+            novaNave.tempo_de_explosão = 0 // converte para radianos 
+            novaNave.rotação = 0
+            novaNave.impulsionando = false
+            novaNave.impulso.x = 0 
+            novaNave.impulso.y = 0     
+         }
         
-        })
       
     
-}
 
+        }
     //Irá executar a função update em um intervalo de 1000/FPS  milissegundos, fazendo com que o jogo ocorra
     setInterval(update, 1000 / FPS);
 
         
-
+        
     </script>
 </body>
 
