@@ -18,7 +18,7 @@
      const IMPULSO_DA_NAVE  = 5
      const VELOCIDADE_DE_ROTAÇÃO = 180
      const FRICÇÃO = 0.7
-     const VELOCIDADE_DOS_ASTEROIDES = 80
+     const VELOCIDADE_DOS_ASTEROIDES = 150 
      const TAMANHO_DOS_ASTEROIDES = 100
      const VÉRTICE_DO_ASTEROIDE = 10
      const TEMPO_DE_BLINK = 0.1 
@@ -179,23 +179,10 @@
     const lista_de_asteroide = criarListaAsteroides(nave, canv, 10)
             //utilizando o CSS para desenhar os asteroides
             const Desenho_dos_asteroides = (lista) => {  //6=quantidade
-            contexto.strokeStyle = "white"
-            contexto.lineWidth = TAMANHO_DA_NAVE / 15
-            contexto.beginPath()
-            contexto.moveTo(
-                lista.x + lista.raio * lista.curvaturas * Math.cos(lista.ângulo),
-                lista.y + lista.raio * lista.curvaturas * Math.sin(lista.ângulo),
-            )
-            contexto.lineTo(
-                lista.x - lista.raio * (2/3 *Math.cos(lista.ângulo) + Math.sin(lista.ângulo)), //Traseira Esquerda da Nave
-                lista.y + lista.raio * (2/3 *Math.sin(lista.ângulo) - Math.cos(lista.ângulo))
-            )
-            contexto.lineTo(
-                lista.x - lista.raio * (2/3 *Math.cos(lista.ângulo) - Math.sin(lista.ângulo)), //Traseira Direita da Nave
-                  lista.y + lista.raio * (2/3 *Math.sin(lista.ângulo) + Math.cos(lista.ângulo))
-            )      
-            contexto.closePath()
-            contexto.stroke()
+              contexto.strokeStyle = "white"
+              contexto.beginPath()
+              contexto.arc(lista.x,lista.y,lista.raio, 0, Math.PI * 2,false)
+              contexto.stroke()
         }
         //Aqui, criamos as funções de soma e subtração para podermos trabalhar com a rotação e movimentação da nave de maneira funcional, por meio de listas
         //const soma = (lista) => lista[0] + lista[1]
@@ -209,7 +196,6 @@
        const textoreiniciar = "Aperte F5 para reiniciar"
        const textobonscaminhos = "Bons Caminhos!"
        const textoAlpha = 1.0   
-    
     
      //uma função update para atualizar os frames do jogo e tornar possível a atualização de imagem
      const update = () => {
@@ -276,6 +262,21 @@
              novaNave.impulso.x = subtração(lista_para_a_fricção_x)
              novaNave.impulso.y = subtração(lista_para_a_fricção_y)
            }
+        const temporizador = (intervalo) => {
+        const executar = (tempo) => {
+            console.log(tempo)
+            setTimeout(() => executar(tempo + 1),intervalo)
+        }
+        executar(0)
+             
+    }
+
+        const score = `Score :${setInterval(temporizador(1000),1000)}` 
+        contexto.textAlign = "center"
+        contexto.fillStyle = "rgba(255, 255, 255, " + textoAlpha + ")"
+        contexto.font = "small-caps " + TAMANHO_DO_TEXTO  + "px dejavu sans mono"
+        contexto.fillText(score, canv.width / 2, canv.height * 0.1)
+
         
          }//caso tenha a colisão, desenharemos a explosão
           else{
@@ -373,7 +374,7 @@
             } else if (x.y > canv.height + x.raio) {
             x.y = 0 - x.raio 
             }
-             if (distanciaEntrePontos(novaNave.x,novaNave.y,x.x,x.y) < novaNave.raio + x.raio){
+             if (distanciaEntrePontos(novaNave.x,novaNave.y,x.x,x.y) < novaNave.raio +  x.raio){
                Explodir_a_nave()}
              if (MOSTRAR_COLISÃO){
                     contexto.strokeStyle = "lime"
@@ -408,7 +409,7 @@
             
         
         }
-    
+
 
           
     //Irá executar a função update em um intervalo de 1000/FPS  milissegundos, fazendo com que o jogo ocorra
@@ -420,4 +421,3 @@
 </body>
 
 </html>
-
