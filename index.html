@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Arrocha Árabe: Asteroides></title>
+    <title>Arrocha Árabe: Asteroides</title>
     <style>
         body {
             /* Escurece o fundo da página */
@@ -23,7 +23,7 @@
 
 <body>
     <canvas id="Canvasdojogo" width="850" height="600"></canvas>
-    <audio id="Música de fundo">
+    <audio id="musica-de-fundo">
       <source src="Backgroundsong - Grass Skirt(SpongeBob).mp3" type="audio/mpeg">
     </audio>
     <script>
@@ -39,7 +39,7 @@
     const IMPULSO_DA_NAVE  = 5
     const VELOCIDADE_DE_ROTAÇÃO = 180
     const FRICÇÃO = 0.7
-    const VELOCIDADE_DOS_ASTEROIDES = 152 
+    const VELOCIDADE_DOS_ASTEROIDES = 120
     const TAMANHO_DOS_ASTEROIDES = 100
     const VÉRTICE_DO_ASTEROIDE = 10
     const TEMPO_DE_BLINK = 0.1 
@@ -48,7 +48,7 @@
     const MOSTRAR_COLISÃO = false
     const canv = document.getElementById("Canvasdojogo"); 
     const contexto = canv.getContext("2d") 
-    const audio = document.getElementById("Música de fundo")
+    const audio = document.getElementById("musica-de-fundo")
     const TAMANHO_DO_TEXTO = 40 //píxels
     const TEMPO_DE_APARIÇÃO_DO_TEXTO = 2.5
     const somdamorte = new Audio('Spongebob disappointed sound (Steel Sting).mp3')
@@ -452,17 +452,17 @@
             novaNave.impulso.x = 0 
             novaNave.impulso.y = 0     
            }
-             
-             
-         
          }
 
-
-           
     //Irá executar a função update em um intervalo de 1000/FPS   milissegundos, fazendo com que o jogo ocorra
-    setInterval(update, 1000 / FPS);
+    //setInterval(update,1000 / FPS);
 
-         
+
+    function loop(){
+      update()
+      requestAnimationFrame(loop)
+    }
+    loop()  
          
     </script>
 </body>
