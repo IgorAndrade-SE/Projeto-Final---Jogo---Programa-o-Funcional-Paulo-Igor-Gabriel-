@@ -23,7 +23,7 @@
 
 <body>
     <canvas id="Canvasdojogo" width="850" height="600"></canvas>
-    <audio id="Música de fundo" autoplay loop>
+    <audio id="Música de fundo">
       <source src="Backgroundsong - Grass Skirt(SpongeBob).mp3" type="audio/mpeg">
     </audio>
     <script>
@@ -51,7 +51,7 @@
     const audio = document.getElementById("Música de fundo")
     const TAMANHO_DO_TEXTO = 40 //píxels
     const TEMPO_DE_APARIÇÃO_DO_TEXTO = 2.5
-    const somdamorte = new Audio('Spongebob Disappointed Sound(Steel Sting).mp3')
+    const somdamorte = new Audio('Spongebob disappointed sound (Steel Sting).mp3')
 
 
     //Aqui, criamos um registro com as informações da nave, dando o Object.freeze a fim de garantir a imutabilidade dela
@@ -87,8 +87,8 @@
 
    //Aqui, realizamos os comandos e o código para os eventos do clique de teclas no teclado, para fazer a nave se movimentar pelo mapa
    const keyDown = (/** @type {KeyboardEvent} */ evento) => {   // o keycode armazena um número que representa a tecla que foi pressionada
-     if (evento.altKey || evento.ctrlKey || evento.shiftKey || evento.metaKey) {
-      return
+     if ([9,37,38,39,40].includes(evento.keyCode) || evento.altKey || evento.tabKey) {
+      evento.preventDefault()
      }
      switch(evento.keyCode){
          case 37: //37 representa a seta para a esquerda(objetivo: rotacionar para a esquerda)
@@ -374,7 +374,7 @@
               contexto.font = "small-caps " + TAMANHO_DO_TEXTO  + "px dejavu sans mono"
               contexto.fillText(textoposgameover, canv.width / 2, canv.height * 0.25)
 
-              return setInterval(update, 0)
+              return setTimeout(0)
               
           
 
@@ -468,8 +468,3 @@
 </body>
 
 </html>
-
-
-
-
-
