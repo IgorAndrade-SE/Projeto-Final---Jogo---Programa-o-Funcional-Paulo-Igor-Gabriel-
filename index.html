@@ -31,27 +31,36 @@
         
     //O jogo é um testa habilidades de concentração, coordenação, foco, estratégia e memória
 
+    let pontuacao = 0
+    let tempojogo = 0
 
-
-    //Aqui definimos as funções que serão utilizadas ao longo do código   
-    const FPS = 30
-    const TAMANHO_DA_NAVE =  30
-    const IMPULSO_DA_NAVE  = 5
+    //Aqui definimos as constantes do jogo
+    const FPS = 30 //originalmente, era pra rodar a 30 FPS usando um setInterval, mas descobrimos o requestAnimationFrame e a constante FPS continou no código para cálculos necessários
+    //constantes da nave
+    const TAMANHO_DA_NAVE =  30 //tamanho em pixels da nave
+    const IMPULSO_DA_NAVE  = 5 // 
     const VELOCIDADE_DE_ROTAÇÃO = 180
-    const FRICÇÃO = 0.7
+    const FRICÇÃO = 0.7 //atrito da nave com o cenário
+    const TEMPO_DE_EXPLOSÃO_DA_NAVE = 0.9 
+    const MOSTRAR_COLISÃO = false //nos testes inicias, desenhamos um círculo na nave que se encheria quando entrasse na área de colisão de um asteroide
+    //constantes dos asteroides
     const VELOCIDADE_DOS_ASTEROIDES = 120
     const TAMANHO_DOS_ASTEROIDES = 100
     const VÉRTICE_DO_ASTEROIDE = 10
-    const TEMPO_DE_BLINK = 0.1 
-    const TEMPO_DE_EXPLOSÃO_DA_NAVE = 0.9
-    const TEMPO_DE_INVULNERABILIDADE = 3 
-    const MOSTRAR_COLISÃO = false
+    //constantes para o canvas(CSS)
     const canv = document.getElementById("Canvasdojogo"); 
     const contexto = canv.getContext("2d") 
+    //constantes para as trilhas sonoras do jogo
     const audio = document.getElementById("musica-de-fundo")
-    const TAMANHO_DO_TEXTO = 40 //píxels
-    const TEMPO_DE_APARIÇÃO_DO_TEXTO = 2.5
     const somdamorte = new Audio('Spongebob disappointed sound (Steel Sting).mp3')
+    //constantes dos textos do jogo
+    const TAMANHO_DO_TEXTO = 40 //tamanho em pixels dos textos do jogo
+    //textos para quando o jogador for jubilado(game over)
+    const textogameover = "Jubilado" //game over
+    const textoreiniciar = "Aperte R para reiniciar" //tecla para reiniciar o jogo(atualizando a página :) )
+    const textobonscaminhos = "Bons Caminhos!" //clássico
+    const textoposgameover = "Teste de memória: qual sua pontuação?" //top 10 crocodilagens de Gabriel Felipe
+    const textoAlpha = 1.0  //servirá para preencher as letras com uma cor no futuro...
 
 
     //Aqui, criamos um registro com as informações da nave, dando o Object.freeze a fim de garantir a imutabilidade dela
@@ -78,10 +87,10 @@
  impulso: {...nave.impulso}
    }
    //uma função para caso a nave se choque contra um asteroide
-   function Explodir_a_nave() {
+   const Explodir_a_nave = () => {
              novaNave.tempo_de_explosão = Math.ceil(TEMPO_DE_EXPLOSÃO_DA_NAVE * FPS);//Math.cell seria o oposto de math.floor, ele irá arrendondar para o maior inteiro
-             somdamorte.play() //a função em si serve para alterar o tempo de explosão na novaNave, deixando ele maior que zero, atributo esse que será utilziado futuramente por uma cont chamada "explodindo"
-             audio.pause()
+             somdamorte.play()//serve para tocar o som da morte quando a nave explodir//a função em si serve para alterar o tempo de explosão na novaNave, deixando ele maior que zero, atributo esse que será utilziado futuramente por uma cont chamada "explodindo"                                                       //a função em si serve para alterar o tempo de explosão na novaNave, deixando ele maior que zero, atributo esse que será utilziado futuramente por uma cont chamada "explodindo"
+             audio.pause() //se a nave explodir, a música de fundo para
             }
               
 
@@ -101,8 +110,7 @@
            novaNave.rotação = -VELOCIDADE_DE_ROTAÇÃO / 180 * Math.PI / FPS
            break;
          case 82: //representa a tecla r, sendo utilizada para atualizar a página
-            window.location.reload() //comando para atualizar a página quando a tecla r for pressionada
-            ;
+          window.location.reload() //comando para atualizar a página quando a tecla r for pressionada
            }   
          }
    const keyUp = (/** @type {KeyboardEvent} */evento) => {   // o keycode armazena um número que representa a tecla que foi pressionada
@@ -128,11 +136,11 @@
 
      const iniciarMusica = () =>{
        audio.play().catch(error => {
-           console.log("Erro na reprodução. Clique para iniciar a música")
+           console.log("Erro na reprodução. Clique para iniciar a música") //comando só pra ver retornar uma mensagem de erro no console quaso a música não toque como deve
        })
       }
 
-      document.addEventListener('keydown', iniciarMusica, {once:true}) 
+      document.addEventListener('keydown', iniciarMusica, {once:true}) //comando para iniciar a música de fundo apenas quando o jogador mover a nave(serve para evitar os problemas com repodução automática em navegadores)
      //Asteroides
      //crriando uma função que retorna um registro que contém as propriedades dos asteroides
      const asteroideXD = (x,y) => Object.freeze({
@@ -146,17 +154,8 @@
         curvaturas: 0, 
          })
     //função utilizada para calcular a distância entre dois pontos quaisquer, será utilizada para verificar se a nave bateu em algum asteroide
-    function distanciaEntrePontos(x1,y1,x2,y2){
+    const distanciaEntrePontos = (x1,y1,x2,y2) => {
          return Math.sqrt(Math.pow(x2-x1,2) + Math.pow(y2-y1,2))
-    }
-    //Função para desenhar a explosão da nave
-    function Explodir_a_nave_desenho(){
-         contexto.fillStyle = "lime"
-         contexto.strokeStyle = "lime"
-         contexto.beginPath()
-         contexto.arc(novaNave.x, novaNave.y, novaNave.raio,0, Math.PI * 2, false)
-         contexto.fill()
-         contexto.stroke()
     }
     //função para gerar uma posição aleatória para o surgimento de um asteroide
     const gerarPosicaoAleatoria = (canvas) => ({
@@ -209,7 +208,7 @@
                   return Object.freeze([])            }
               else {return Object.freeze([
                   criarAsteroide(nave, canvas),
-                  ...criarListaAsteroides(nave, canvas, quantidade - 1)
+                  ...criarListaAsteroides(nave, canvas, quantidade - 1) //aqui utilizamos a recursividade para criar uma lista de asteroides
               ])}
           }
 
@@ -219,28 +218,26 @@
 
      const lista_de_asteroide = criarListaAsteroides(nave, canv, 10)
               //utilizando o CSS para desenhar os asteroides
-              const Desenho_dos_asteroides = (lista) => {   //6=quantidade
-                contexto.strokeStyle = "white"
-                contexto.beginPath()
+              const Desenho_dos_asteroides = (lista) => { 
+                contexto.strokeStyle = "white" //desenhando com traço de cor branca
+                contexto.beginPath() //começando o desenho
                 contexto.arc(lista.x,lista.y,lista.raio, 0, Math.PI * 2,false)
-                contexto.stroke()
+                contexto.stroke() //fechando o desenho
          }
-         //Aqui, criamos as funções de soma e subtração para podermos trabalhar com a rotação e movimentação da nave de maneira funcional, por meio de listas
-         //const soma = (lista) => lista[0] + lista[1]
-         //const subtração = (lista) => lista [0] - lista[1]
+         //Aqui criamos as funções de soma e subtração para podermos trabalhar com a rotação e movimentação da nave de maneira funcional, por meio de listas
          const soma = (lista) => lista[0] + lista[1]
          const subtração = (lista) => lista [0] - lista[1]
 
 
-    
-        const textogameover = "Jubilado"
-        const textoreiniciar = "Aperte R para reiniciar"
-        const textobonscaminhos = "Bons Caminhos!"
-        const textoposgameover = "Teste de memória: qual sua pontuação?"
-        const textoAlpha = 1.0  
+        //Aqui temos os grandes textos caso o jogador morra
+        
      
       //uma função update para atualizar os frames do jogo e tornar possível a atualização de imagem
       const update = () => {
+         tempojogo++
+          //if (tempojogo % 60 == 0)
+           //pontuacao+=10
+          
         //listas que serão utilizadas posteriormente para trabalhar com a movimentação da nave 
         lista_para_o_impulso_x = Object.freeze([novaNave.impulso.x, IMPULSO_DA_NAVE * Math.cos(novaNave.ângulo) / FPS])
         lista_para_o_impulso_y = Object.freeze([novaNave.impulso.y, IMPULSO_DA_NAVE * Math.sin(novaNave.ângulo) / FPS])
@@ -256,6 +253,11 @@
         
           //Desenhando a nave(Em formato triângular), caso não tenha colisão, por isso o !explosion
         if(!explodindo){
+          if (tempojogo % 30 == 0)
+           pontuacao+=10
+
+
+
             contexto.strokeStyle = "red";
             contexto.lineWidth = TAMANHO_DA_NAVE / 20,
             contexto.beginPath()
@@ -274,6 +276,7 @@
             )   
             contexto.closePath()
             contexto.stroke()
+            
             //Impulsionando a nave
             if (novaNave.impulsionando) {
                 novaNave.impulso.x = soma(lista_para_o_impulso_x) ;
@@ -321,17 +324,20 @@
  return executar(0)
 }
          
-         const pontuacao = `Pontuação:${setInterval(temporizador(1000,explodindo),1000)}` //utilizando a função temporizador para contar a pontuação à medida que o tempo passa, visto que 
-         contexto.textAlign = "center"                                                    //quanto mais tempo você passar vivo, maior a sua pontuação
-         contexto.fillStyle = "rgba(255, 255, 255, " + textoAlpha + ")"
-         contexto.font = "small-caps " + TAMANHO_DO_TEXTO  + "px dejavu sans mono"
-         contexto.fillText(pontuacao, canv.width / 2, canv.height * 0.1)
+         contexto.textAlign = "right";
+         contexto.fillStyle = "white";
+         contexto.font = "small-caps " + TAMANHO_DO_TEXTO + "px dejavu sans mono";
+         contexto.fillText("Pontuação: " + pontuacao, canv.width - 20, 50);
 
          
 
          
           }//caso tenha a colisão, desenharemos a explosão
           else{
+            const pontuação = Object.freeze([pontuacao])
+            const pontuaçãofinal = `Pontuação Final: ${pontuação}`
+          
+
             contexto.fillStyle = "red"
             contexto.beginPath()
             contexto.arc(novaNave.x,novaNave.y,novaNave.raio * 1.7, 0, Math.PI * 2,false)
@@ -357,7 +363,7 @@
               contexto.fillStyle = "rgba(255, 255, 255, " + textoAlpha + ")"
               contexto.font = "small-caps " + TAMANHO_DO_TEXTO  + "px dejavu sans mono"
               contexto.fillText(textoreiniciar, canv.width / 2, canv.height * 0.75)
-              //textoAlpha = textoAlpha - 1.0 / TEMPO_DE_APARIÇÃO_DO_TEXTO / FPS
+              
 
             contexto.textAlign = "center"
               contexto.fillStyle = "rgba(255, 255, 255, " + textoAlpha + ")"
@@ -369,13 +375,17 @@
               contexto.font = "small-caps " + TAMANHO_DO_TEXTO  + "px dejavu sans mono"
               contexto.fillText(textogameover, canv.width / 2, canv.height * 0.1)
 
-              contexto.textAlign = "center"
-              contexto.fillStyle = "rgba(255, 255, 255, " + textoAlpha + ")"
-              contexto.font = "small-caps " + TAMANHO_DO_TEXTO  + "px dejavu sans mono"
-              contexto.fillText(textoposgameover, canv.width / 2, canv.height * 0.25)
+            contexto.textAlign = "center"
+            contexto.fillStyle = "rgba(255, 255, 255, " + textoAlpha + ")"
+            contexto.font = "small-caps " + TAMANHO_DO_TEXTO  + "px dejavu sans mono"
+            contexto.fillText(pontuaçãofinal, canv.width / 2, canv.height * 0.35)
 
-              return setTimeout(0)
               
+
+
+              return setTimeout(0) //representa a tecla r, sendo utilizada para atualizar a página
+               //comando para atualizar a página quando a tecla r for pressionada
+            
           
 
           } 
@@ -454,10 +464,7 @@
            }
          }
 
-    //Irá executar a função update em um intervalo de 1000/FPS   milissegundos, fazendo com que o jogo ocorra
-    //setInterval(update,1000 / FPS);
-
-
+    //a função que cria um loop usando recursividade para atualizar sempre o jogo
     function loop(){
       update()
       requestAnimationFrame(loop)
