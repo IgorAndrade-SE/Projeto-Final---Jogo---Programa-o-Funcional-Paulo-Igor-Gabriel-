@@ -35,7 +35,7 @@
     let tempojogo = 0
 
     //Aqui definimos as constantes do jogo
-    const FPS = 30 //originalmente, era pra rodar a 30 FPS usando um setInterval, mas descobrimos o requestAnimationFrame e a constante FPS continou no código para cálculos necessários
+    const FPS = 60 //Variável que ajudará em cálculos durante o código do jogo, e também ajudará na delimitação de quadros por segundo rodados pelo jogo, garantindo que ele rode em uma boa velocidade
     //constantes da nave
     const TAMANHO_DA_NAVE =  30 //tamanho em pixels da nave
     const IMPULSO_DA_NAVE  = 5 // 
@@ -44,7 +44,7 @@
     const TEMPO_DE_EXPLOSÃO_DA_NAVE = 0.9 
     const MOSTRAR_COLISÃO = false //nos testes inicias, desenhamos um círculo na nave que se encheria quando entrasse na área de colisão de um asteroide
     //constantes dos asteroides
-    const VELOCIDADE_DOS_ASTEROIDES = 120
+    const VELOCIDADE_DOS_ASTEROIDES = 200
     const TAMANHO_DOS_ASTEROIDES = 100
     const VÉRTICE_DO_ASTEROIDE = 10
     //constantes para o canvas(CSS)
@@ -308,21 +308,6 @@
              novaNave.impulso.x = subtração(lista_para_a_fricção_x)
              novaNave.impulso.y = subtração(lista_para_a_fricção_y)
            }
-         const temporizador = (intervalo, naveEstado) => {
- const executar = (tempo) => {
-   if (naveEstado===true) {
-     // A nave está explodindo, parar a contagem e retornar o valor atual
-     return tempo
-   } else {
-     // Continua a contagem
-     setTimeout(() => {
-       // Chamada recursiva passando o mesmo estado atualizado
-       executar(tempo + 1)
-     }, intervalo)
-   }
- }
- return executar(0)
-}
          
          contexto.textAlign = "right";
          contexto.fillStyle = "white";
@@ -334,6 +319,7 @@
          
           }//caso tenha a colisão, desenharemos a explosão
           else{
+            //Utilizamos esse const pontuação para capturar o último valor da pontuação, colocamos ele em uma lista, e damos um Object.freeze para garantir que esse valor não seja mais alterado
             const pontuação = Object.freeze([pontuacao])
             const pontuaçãofinal = `Pontuação Final: ${pontuação}`
           
@@ -403,7 +389,7 @@
 
 
         //Movendo a nave
-        lista_x_e_impulso= Object([novaNave.x,novaNave.impulso.x])
+        lista_x_e_impulso= Object.freeze([novaNave.x,novaNave.impulso.x])
         lista_y_e_impulso = Object.freeze([novaNave.y,novaNave.impulso.y])
 
         novaNave.x = soma(lista_x_e_impulso)
@@ -464,12 +450,10 @@
            }
          }
 
-    //a função que cria um loop usando recursividade para atualizar sempre o jogo
-    function loop(){
-      update()
-      requestAnimationFrame(loop)
-    }
-    loop()  
+    //Funçaõ que irá garantir que o jogo seja executado repetidamente no intervalor de tempo delimitado dentro dela, no caso, "1000/FPS"     
+    setInterval(update,1000/FPS)
+    
+  
          
     </script>
 </body>
